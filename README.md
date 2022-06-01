@@ -16,8 +16,10 @@ When you need to perform aggregations after `$search` on large result sets, `$so
 
 ## Autocomplete Improvements
 
+There were 3 major improvements introduced to the `autocomplete` operator over the past year. The first allows users to run `autocomplete` against any of our Atlas Search Analyzers. Now you can have type-as-you-go and partial search against multi-lingual data.
 
+The second allows users to boost exact matches in the `autocomplete` operator. 
 
+The third adds `rightEdgeGram tokenization` strategy to create edgeGram-like tokens starting at the right side of words (instead of the left side). 
 
-
-
+An example of each is documented in [to be filled out]
