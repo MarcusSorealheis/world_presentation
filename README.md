@@ -22,4 +22,4 @@ The second allows users to boost exact matches in the `autocomplete` operator.
 
 The third adds `rightEdgeGram tokenization` strategy to create edgeGram-like tokens starting at the right side of words (instead of the left side). 
 
-An example of each is documented in [to be filled out]
+An example of each is documented in [mdbw-autocomplete-improvements.js](./mdbw-autocomplete-improvements.js)
