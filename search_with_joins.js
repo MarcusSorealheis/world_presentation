@@ -1,20 +1,38 @@
 // uses join queries. 
 
-var joinQuery = db.comments.aggregate([{
-  $lookup: {
-    from: "users",
-    let: { "u": "email" },
-    as: "person",
-    pipeline: [
-      {
-        $search: {
-          text: {
-            query: "ipsum",
-            path: "text"
-          }
+var db = sample_mflix,
+  joinQuery = db.comments.aggregate([
+    {
+      '$search': {
+        'text': {
+          'query': 'Ned Stark', 
+          'path': 'name'
         }
-      },
-      { $match: { $expr: { $eq: [$$u, "$email"] } } }
-    ]
-  }
-}]);
+      }
+    }, {
+      '$lookup': {
+        'from': 'comments', 
+        'localField': 'name', 
+        'foreignField': 'name', 
+        'as': 'commentsFromNed', 
+        'pipeline': [
+          {
+            '$search': {
+              'range': {
+                'path': 'date', 
+                'gt': new Date('Sat, 01 Jan 2000 00:00:00 GMT')
+              }
+            }
+          }
+        ]
+      }
+    }, {
+      '$unwind': {
+        'path': '$commentsFromNed'
+      }
+    }, {
+      '$replaceRoot': {
+        'newRoot': '$commentsFromNed'
+      }
+    }
+  ]);
