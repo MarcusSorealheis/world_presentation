@@ -1,6 +1,251 @@
-var crossCollectionQuery = db.companies.aggregate([{
-  $search: { text: { query: "State", path: [ "description", "overview"]}}},
-    { $unionWith: { coll: "inpections", pipeline: [ { $search: { text: { query: 'State', path: "comments" } } } ] } },
-    { $unionWith: { coll: "posts", pipeline: [ { $search: { text: { query: 'State', path: "comments" } } } ] } }
+
+
+
+// unsorted
+
+var queryUnsorted = db.companies.aggregate([
+  {
+    '$search': {
+      'text': {
+        'query': 'LICENSE NUMBER', 
+        'path': 'overview'
+      }
+    }
+  }, {
+    '$unionWith': {
+      'coll': 'inspections', 
+      'pipeline': [
+        {
+          '$search': {
+            'text': {
+              'query': 'LICENSE NUMBER', 
+              'path': 'business_name'
+            }
+          }
+        }
+      ]
+    }
+  }
+])
+
+// debugging my query
+
+var testWithLimit= db.companies.aggregate([
+  {
+    '$search': {
+      'text': {
+        'query': 'LICENSE NUMBER', 
+        'path': 'overview'
+      }
+    }
+  }, {
+    '$addFields': {
+      'source': 'overview'
+    }
+  }, {
+    '$limit': 2
+  }, {
+    '$unionWith': {
+      'coll': 'inspections', 
+      'pipeline': [
+        {
+          '$search': {
+            'text': {
+              'query': 'LICENSE NUMBER', 
+              'path': 'business_name'
+            }
+          }
+        }, {
+          '$set': {
+            'source': 'inspections'
+          }
+        }
+      ]
+    }
+  }, {
+    '$project': {
+      'score': {
+        '$meta': 'searchScore'
+      }, 
+      'source': 1, 
+      'business_name': 1, 
+      'name': 1
+    }
+  }, {
+    '$sort': {
+      'score': -1
+    }
+  }
 ]);
 
+// results sorted on score
+
+var crossCollectionQuerySorted ([
+  {
+    '$search': {
+      'text': {
+        'query': 'LICENSE NUMBER', 
+        'path': 'overview', 
+        'score': {
+          'boost': {
+            'value': 1.6
+          }
+        }
+      }
+    }
+  }, {
+    '$addFields': {
+      'source': 'companies'
+    }
+  }, {
+    '$unionWith': {
+      'coll': 'inspections', 
+      'pipeline': [
+        {
+          '$search': {
+            'text': {
+              'query': 'LICENSE NUMBER', 
+              'path': 'business_name'
+            }
+          }
+        }, {
+          '$set': {
+            'source': 'inspections'
+          }
+        }
+      ]
+    }
+  }, {
+    '$project': {
+      'score': {
+        '$meta': 'searchScore'
+      }, 
+      'source': 1, 
+      'business_name': 1, 
+      'name': 1
+    }
+  }, {
+    '$sort': {
+      'score': -1
+    }
+  },
+  {
+    'limit': 10
+  }
+])
+
+// total count and docs
+
+var totalCountAndDocsQuery = db.companies.aggregate([
+  {
+    '$search': {
+      'text': {
+        'query': 'LICENSE NUMBER', 
+        'path': 'overview', 
+        'score': {
+          'boost': {
+            'value': 1.6
+          }
+        }
+      }
+    }
+  }, {
+    '$addFields': {
+      'source': 'overview', 
+      'source_count': '$$SEARCH_META.count'
+    }
+  }, {
+    '$unionWith': {
+      'coll': 'inspections', 
+      'pipeline': [
+        {
+          '$search': {
+            'text': {
+              'query': 'LICENSE NUMBER', 
+              'path': 'business_name'
+            }
+          }
+        }, {
+          '$set': {
+            'source': 'inspections', 
+            'source_count': '$$SEARCH_META.count'
+          }
+        }
+      ]
+    }
+  }, {
+    '$project': {
+      'score': {
+        '$meta': 'searchScore'
+      }, 
+      'source': 1, 
+      'business_name': 1, 
+      'name': 1, 
+      'source_count': 1
+    }
+  }, {
+    '$sort': {
+      'score': -1
+    }
+  }, {
+    '$facet': {
+      'allDocs': [], 
+      'totalCount': [
+        {
+          '$group': {
+            '_id': '$source', 
+            'count': {
+              '$first': '$source_count.lowerBound'
+            }
+          }
+        }, {
+          '$group': {
+            '_id': null, 
+            'totalCount': {
+              '$sum': '$count'
+            }
+          }
+        }
+      ]
+    }
+  }
+]);
+
+// total count only
+
+var totalCountQuery = db.companies.aggregate([
+  {
+    '$searchMeta': {
+      'text': {
+        'query': 'LICENSE NUMBER', 
+        'path': 'overview', 
+        'score': {
+          'boost': {
+            'value': 1.6
+          }
+        }
+      }
+    }
+  }, {
+    '$unionWith': {
+      'coll': 'inspections', 
+      'pipeline': [
+        {
+          '$searchMeta': {
+            'text': {
+              'query': 'LICENSE NUMBER', 
+              'path': 'business_name'
+            }
+          }
+        }
+      ]
+    }
+  }, {
+    '$group': {
+      '_id': 'Total', 
+      'total': {
+        '$sum': '$count.lowerBound'
+      }
+    }
+  }
+]);
