@@ -1,4 +1,8 @@
+/*
 
+Cross-collection search with $unionWith (https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/)
+
+*/ 
 
 
 // unsorted
