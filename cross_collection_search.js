@@ -155,8 +155,8 @@ var totalCountAndDocsQuery = db.companies.aggregate([
     }
   }, {
     '$addFields': {
-      'source': 'overview', 
-      'source_count': '$$SEARCH_META.count'
+      'source': 'companies', 
+      'source_count': '$$SEARCH_META.count.lowerBound'
     }
   }, {
     '$unionWith': {
@@ -172,7 +172,7 @@ var totalCountAndDocsQuery = db.companies.aggregate([
         }, {
           '$set': {
             'source': 'inspections', 
-            'source_count': '$$SEARCH_META.count'
+            'source_count': '$$SEARCH_META.countBound'
           }
         }
       ]
@@ -198,7 +198,7 @@ var totalCountAndDocsQuery = db.companies.aggregate([
         {
           '$group': {
             '_id': '$source', 
-            'count': {
+            'firstCount': {
               '$first': '$source_count.lowerBound'
             }
           }
@@ -206,7 +206,7 @@ var totalCountAndDocsQuery = db.companies.aggregate([
           '$group': {
             '_id': null, 
             'totalCount': {
-              '$sum': '$count'
+              '$sum': '$firstCount'
             }
           }
         }
