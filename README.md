@@ -12,7 +12,7 @@ In many cases, users would like to filter results from `$search` queries targeti
 
 ## Search with Stored Source `returnedStoredSource`
 
-When you need to perform aggregations after `$search` on large result sets, `$sort`, `$match`, `$limit` and `$skip` stages could perform faster with stored source (. 40,000 documents is an imprecise rule of thumb for large result sets. Check out [stored_source_search.js](./cross_collection_search.js).
+When you need to perform aggregations after `$search` on large result sets, `$sort`, `$match`, `$limit` and `$skip` stages could perform faster with stored source. 40,000 documents is an imprecise rule of thumb for large result sets. Check out [stored_source_search.js](./cross_collection_search.js).
 
 ## Autocomplete Improvements
 
