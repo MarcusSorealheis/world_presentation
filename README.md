@@ -4,7 +4,7 @@ In this repository, you will find code examples from the demos presented by Atla
 
 ## Cross-Collection Search - `$unionWith`
 
-In many cases, users would like to search across more than one collection in a database. In 6.0-rc-3, we introduced the ability to do cross collection searches with `$unionWith` and `$search` sub-pipelines. For an example, check out [cross_collection_search.js](./cross_collection_search.js).
+In many cases, users would like to search across more than one collection in a database. In 6.0-0, we introduced the ability to do cross collection searches with `$unionWith` and `$search` sub-pipelines. For an example, check out [cross_collection_search.js](./cross_collection_search.js).
 
 ## Search with Joins - `$lookup`
 
